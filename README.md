@@ -1,5 +1,5 @@
 # noise
 
-Computational art project driven by analyzing sentiment of recent news articles.
+Computational art project driven by sentiment analysis of recent news articles.
 
 # Coming Soon
