@@ -1,0 +1,7 @@
+[
+  {
+    "Domain": "https://www.cnn.com",
+    "RelevantElementType": "div",
+    "RelevantClassName": "zn-body__paragraph"
+  }
+]
