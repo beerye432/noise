@@ -9,7 +9,7 @@ namespace Noise.SentimentCollection.Engine
     /// results of running noise sentiment analysis 
     /// on a particular list of tokens.
     /// </summary>
-    class SentimentInfo
+    public class SentimentInfo
     {
         public SentimentInfo(int valence, int numTokens)
         {

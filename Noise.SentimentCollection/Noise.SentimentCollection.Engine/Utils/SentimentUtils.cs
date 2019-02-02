@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Noise.SentimentCollection.Engine
 {
-    class SentimentUtils
+    public static class SentimentUtils
     {
         public static SentimentInfo ProcessText(string text, Dictionary<string, int> valences)
         {
@@ -90,6 +90,33 @@ namespace Noise.SentimentCollection.Engine
             };
 
             return info;
+        }
+
+        public static SentimentInfo ConsolidateSentimentInfo(List<SentimentInfo> sentiments)
+        {
+            HashSet<string> consolidatedProperNouns = new HashSet<string>();
+            foreach (HashSet<string> properNouns in sentiments.Select(s => s.ProperNounTokens))
+                consolidatedProperNouns.UnionWith(properNouns);
+
+            HashSet<string> consolidatedPositiveTokens = new HashSet<string>();
+            foreach (HashSet<string> properNouns in sentiments.Select(s => s.PositiveTokens))
+                consolidatedPositiveTokens.UnionWith(properNouns);
+
+            HashSet<string> consolidatedNeutralTokens = new HashSet<string>();
+            foreach (HashSet<string> properNouns in sentiments.Select(s => s.NeutralTokens))
+                consolidatedNeutralTokens.UnionWith(properNouns);
+
+            HashSet<string> consolidatedNegativeTokens = new HashSet<string>();
+            foreach (HashSet<string> properNouns in sentiments.Select(s => s.NegativeTokens))
+                consolidatedNegativeTokens.UnionWith(properNouns);
+
+            return new SentimentInfo(sentiments.Sum(s => s.Valence), sentiments.Sum(s => s.NumTokens))
+            {
+                ProperNounTokens = consolidatedProperNouns,
+                NeutralTokens = consolidatedNeutralTokens,
+                NegativeTokens = consolidatedNegativeTokens,
+                PositiveTokens = consolidatedPositiveTokens
+            };
         }
     }
 }

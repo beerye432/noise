@@ -13,7 +13,7 @@ namespace Noise.SentimentCollection.Engine
     public class RSSScraperConfiguration
     {
         [DataMember]
-        public SentimentTopic Type { get; set; }
+        public SentimentTopic Topic { get; set; }
 
         [DataMember]
         public string Name { get; set; }

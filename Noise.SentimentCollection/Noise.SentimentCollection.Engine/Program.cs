@@ -69,6 +69,10 @@ namespace Noise.SentimentCollection.Engine
                         // Select nodes that conform to the domain's relevant element type and class
                         HtmlNodeCollection newsSnippets = articleHTML.DocumentNode.SelectNodes($"//{domain.RelevantElementType}[contains(@class, '{domain.RelevantClassName}')]");
 
+                        // No nodes that conform to domain's relevant elemnt type and class? skip
+                        if (newsSnippets == null || newsSnippets.Count == 0)
+                            continue;
+
                         // Smush all the relevant nodes' inner text into 1 big string (adding spaces between nodes)
                         string nodeConcat = string.Concat(newsSnippets.Select(n => n.InnerText + " "));
 
@@ -78,6 +82,31 @@ namespace Noise.SentimentCollection.Engine
 
                         await File.AppendAllTextAsync("out.txt", $"Article {linkURL} has total valence of {info.Valence}, number of tokens {info.NumTokens}, and average valence of {info.ValenceAverage}\n");
                     }
+
+                    TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+                    DateTime currentPST = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+
+                    SentimentInfo consolidatedSentimentInfo = SentimentUtils.ConsolidateSentimentInfo(analyzedArticles);
+                    File.AppendAllTextAsync("out.txt",
+                        $"\n{topicScraper.Topic.ToString()} topic for {currentPST} yielded total valence of {consolidatedSentimentInfo.Valence}, " +
+                        $"number of tokens {consolidatedSentimentInfo.NumTokens}, " +
+                        $"and average valence of {consolidatedSentimentInfo.ValenceAverage}\n\n").Wait();
+
+                    File.AppendAllTextAsync("out.txt", "Proper nouns:\n").Wait();
+                    File.AppendAllLines("out.txt", consolidatedSentimentInfo.ProperNounTokens);
+                    File.AppendAllTextAsync("out.txt", "\n").Wait();
+
+                    File.AppendAllTextAsync("out.txt", "Positive:\n").Wait();
+                    File.AppendAllLines("out.txt", consolidatedSentimentInfo.PositiveTokens);
+                    File.AppendAllTextAsync("out.txt", "\n").Wait();
+
+                    File.AppendAllTextAsync("out.txt", "Neutral:\n").Wait();
+                    File.AppendAllLines("out.txt", consolidatedSentimentInfo.NeutralTokens);
+                    File.AppendAllTextAsync("out.txt", "\n").Wait();
+
+                    File.AppendAllTextAsync("out.txt", "Negative nouns:\n").Wait();
+                    File.AppendAllLines("out.txt", consolidatedSentimentInfo.NegativeTokens);
+                    File.AppendAllTextAsync("out.txt", "\n").Wait();
                 }
             }
         }

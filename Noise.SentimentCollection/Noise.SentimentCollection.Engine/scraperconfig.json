@@ -1,6 +1,6 @@
 [
   {
-    "Type": 1,
+    "Topic": 1,
     "Name": "CNN",
     "RSSURL": "http://rss.cnn.com/rss/cnn_us.rss",
     "LinkLocalName": "guid",
