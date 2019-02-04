@@ -38,21 +38,16 @@ namespace Noise.SentimentCollection.Engine
         /// <summary>
         /// Set of tokens that were identified as positive
         /// </summary>
-        public HashSet<string> PositiveTokens { get; set; }
+        public Dictionary<string, int> PositiveTokens { get; set; }
 
         /// <summary>
         /// Set of tokens that were identified as negative
         /// </summary>
-        public HashSet<string> NegativeTokens { get; set; }
-
-        /// <summary>
-        /// Set of tokens that were identified as neutral
-        /// </summary>
-        public HashSet<string> NeutralTokens { get; set; }
+        public Dictionary<string, int> NegativeTokens { get; set; }
 
         /// <summary>
         /// Set of tokens that were identified as proper nouns
         /// </summary>
-        public HashSet<string> ProperNounTokens { get; set; }
+        public Dictionary<string, int> ProperNounTokens { get; set; }
     }
 }
