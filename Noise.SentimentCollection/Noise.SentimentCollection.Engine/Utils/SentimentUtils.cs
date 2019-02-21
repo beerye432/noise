@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Noise.SentimentCollection.Engine
 {
     public static class SentimentUtils
     {
-        public static async Task<SentimentInfo> MakeRequest(string linkURL, HttpClient client, Dictionary<string, int> valences, List<DomainSettings> knownDomains)
+        public static async Task<SentimentInfo> MakeRequest(string linkURL, HttpClient client, Dictionary<string, int> valences, List<DomainSettings> knownDomains, string dbConnString, string outFileName)
         {
             // See if we have information about how to extract information from the domain of the current article
             DomainSettings domain = knownDomains.Where(d => linkURL.Contains(d.Domain)).FirstOrDefault();
@@ -38,8 +39,35 @@ namespace Noise.SentimentCollection.Engine
             string nodeConcat = string.Concat(newsSnippets.Select(n => n.InnerText + " "));
 
             // Feed concatenated article into processor
-            SentimentInfo info = SentimentUtils.ProcessText(nodeConcat, valences);
-            await File.AppendAllTextAsync("out.txt", $"Article {linkURL} has total valence of {info.Valence}, number of tokens {info.NumTokens}, and average valence of {info.ValenceAverage}\n");
+            SentimentInfo info = ProcessText(nodeConcat, valences);
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(dbConnString))
+            {
+                await connection.OpenAsync();
+                using (NpgsqlCommand command = new NpgsqlCommand())
+                {
+                    command.Connection = connection;
+                    command.CommandText = @"
+                        INSERT INTO articles (name, published_on, valence)
+                        VALUES (@name, @published_on, @valence)";
+
+                    command.Parameters.AddWithValue("name", linkURL);
+                    command.Parameters.AddWithValue("published_on", DateTime.UtcNow);
+                    command.Parameters.AddWithValue("valence", info.ValenceAverage);
+
+                    try
+                    {
+                        await command.ExecuteNonQueryAsync();
+                    }
+                    catch (PostgresException ex)
+                    {
+                        if (ex.SqlState != "23505")
+                            throw ex;
+                    }
+                }
+            }
+
+            await File.AppendAllTextAsync(outFileName, $"Article {linkURL} has total valence of {info.Valence}, number of tokens {info.NumTokens}, and average valence of {info.ValenceAverage}\n");
             return info;
 
         }
@@ -136,6 +164,8 @@ namespace Noise.SentimentCollection.Engine
                 NegativeTokens = negativeTokens,
                 ProperNounTokens = properNounTokens
             };
+
+
 
             return info;
         }
