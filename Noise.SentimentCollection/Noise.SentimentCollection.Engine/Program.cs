@@ -21,25 +21,8 @@ namespace Noise.SentimentCollection.Engine
 
         private static async Task CollectSentiments()
         {
-            // Load DB configuration
-            string jsonString = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "dbconfig.json"));
-            DatabaseConfiguration dbConfig = JsonConvert.DeserializeObject<DatabaseConfiguration>(jsonString);
-
-            string postgresConnString = $"Host={dbConfig.Host};Port={dbConfig.Port};Username={dbConfig.Username};Password={dbConfig.Password};Database={dbConfig.Database}";
-
-            // Load scraper configuration
-            jsonString = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "scraperconfig.json"));
-            List<RSSScraperConfiguration> topics = JsonConvert.DeserializeObject<List<RSSScraperConfiguration>>(jsonString);
-
-            // Load domain settings
-            jsonString = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "domainsettings.json"));
-            List<DomainSettings> knownDomains = JsonConvert.DeserializeObject<List<DomainSettings>>(jsonString);
-
-            // Create valence dictionary for NLP
-            Dictionary<string, int> valences = await ValenceDictionaryUtils.CreateValenceDictionary();
-
             // For each scraper configuration (aka TOPIC)
-            foreach (RSSScraperConfiguration topicScraper in topics)
+            foreach (RSSScraperConfiguration topicScraper in NoiseConfigurations.ScraperTopics)
             {
                 List<string> rssFeedLinks = new List<string>();
                 var rssResponseString = "";
@@ -64,17 +47,18 @@ namespace Noise.SentimentCollection.Engine
                 // For each article link
                 foreach (var linkURL in rssFeedLinks)
                 {
-                    SentimentInfo info = await SentimentUtils.MakeRequest(linkURL, NoiseHttpClient, valences, knownDomains, postgresConnString, outFile);
-                    if(info != null)
+                    SentimentInfo info = await SentimentUtils.MakeRequest(linkURL, NoiseHttpClient, outFile);
+                    if (info != null)
                         analyzedArticles.Add(info);
                 }
 
                 SentimentInfo consolidatedSentimentInfo = SentimentUtils.ConsolidateSentimentInfo(analyzedArticles);
 
                 // Write sentiments to database
-                using (NpgsqlConnection connection = new NpgsqlConnection(postgresConnString))
+                using (NpgsqlConnection connection = new NpgsqlConnection(NoiseConfigurations.PostgresConnectionString))
                 {
                     await connection.OpenAsync();
+
                     using (NpgsqlCommand command = new NpgsqlCommand())
                     {
                         command.Connection = connection;
@@ -91,7 +75,7 @@ namespace Noise.SentimentCollection.Engine
                         {
                             await command.ExecuteNonQueryAsync();
                         }
-                        catch(PostgresException ex)
+                        catch (PostgresException ex)
                         {
                             if (ex.SqlState != "23505")
                                 throw ex;
@@ -107,22 +91,25 @@ namespace Noise.SentimentCollection.Engine
                     $"number of tokens {consolidatedSentimentInfo.NumTokens}, " +
                     $"and average valence of {consolidatedSentimentInfo.ValenceAverage}\n\n").Wait();
 
+                // Write the top 10 proper nouns
                 List<KeyValuePair<string, int>> propers = consolidatedSentimentInfo.ProperNounTokens.ToList();
                 propers.Sort((p1, p2) => p2.Value.CompareTo(p1.Value));
                 await File.AppendAllTextAsync(outFile, "Proper nouns:\n");
-                await File.AppendAllLinesAsync(outFile, propers.Select(s => $"{s.Key} {s.Value}"));
+                await File.AppendAllLinesAsync(outFile, propers.Take(10).Select(s => $"{s.Key} {s.Value}"));
                 await File.AppendAllTextAsync(outFile, "\n");
 
+                // Write the top 10 positive tokens
                 List<KeyValuePair<string, int>> positives = consolidatedSentimentInfo.PositiveTokens.ToList();
                 positives.Sort((p1, p2) => p2.Value.CompareTo(p1.Value));
                 await File.AppendAllTextAsync(outFile, "Positive tokens:\n");
-                await File.AppendAllLinesAsync(outFile, positives.Select(s => $"{s.Key} {s.Value}"));
+                await File.AppendAllLinesAsync(outFile, positives.Take(10).Select(s => $"{s.Key} {s.Value}"));
                 await File.AppendAllTextAsync(outFile, "\n");
 
+                // Write the top 10 negative tokens
                 List<KeyValuePair<string, int>> negatives = consolidatedSentimentInfo.NegativeTokens.ToList();
                 negatives.Sort((p1, p2) => p2.Value.CompareTo(p1.Value));
                 await File.AppendAllTextAsync(outFile, "Negative tokens:\n");
-                await File.AppendAllLinesAsync(outFile, negatives.Select(s => $"{s.Key} {s.Value}"));
+                await File.AppendAllLinesAsync(outFile, negatives.Take(10).Select(s => $"{s.Key} {s.Value}"));
                 await File.AppendAllTextAsync(outFile, "\n");
             }
         }

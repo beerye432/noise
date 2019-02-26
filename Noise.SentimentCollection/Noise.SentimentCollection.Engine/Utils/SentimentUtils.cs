@@ -13,10 +13,10 @@ namespace Noise.SentimentCollection.Engine
 {
     public static class SentimentUtils
     {
-        public static async Task<SentimentInfo> MakeRequest(string linkURL, HttpClient client, Dictionary<string, int> valences, List<DomainSettings> knownDomains, string dbConnString, string outFileName)
+        public static async Task<SentimentInfo> MakeRequest(string linkURL, HttpClient client, string outFileName)
         {
             // See if we have information about how to extract information from the domain of the current article
-            DomainSettings domain = knownDomains.Where(d => linkURL.Contains(d.Domain)).FirstOrDefault();
+            DomainSettings domain = NoiseConfigurations.KnownDomains.Where(d => linkURL.Contains(d.Domain)).FirstOrDefault();
             if (domain == null)
                 return null;
 
@@ -39,9 +39,9 @@ namespace Noise.SentimentCollection.Engine
             string nodeConcat = string.Concat(newsSnippets.Select(n => n.InnerText + " "));
 
             // Feed concatenated article into processor
-            SentimentInfo info = ProcessText(nodeConcat, valences);
+            SentimentInfo info = ProcessText(nodeConcat, NoiseConfigurations.Valences);
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(dbConnString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(NoiseConfigurations.PostgresConnectionString))
             {
                 await connection.OpenAsync();
                 using (NpgsqlCommand command = new NpgsqlCommand())
@@ -107,6 +107,9 @@ namespace Noise.SentimentCollection.Engine
                 if (char.IsUpper(currentToken[0]) && !tokens[i - 1].Replace(" ", "").EndsWith('.'))
                 {
                     string token = currentToken.Replace(".", "").ToLower();
+                    if (NoiseConfigurations.IgnoredProperNouns.Contains(token))
+                        continue;
+
                     if (properNounTokens.ContainsKey(token))
                         properNounTokens[token]++;
                     else
