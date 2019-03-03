@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Noise.SentimentCollection.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Noise.SentimentCollection.Engine", "Noise.SentimentCollection\Noise.SentimentCollection.Engine\Noise.SentimentCollection.Engine.csproj", "{B268E121-4800-402B-B066-FFA17051D5EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Noise.Tests", "Noise.Tests\Noise.Tests.csproj", "{82AE9FD4-E420-4AAC-9199-513CA69482FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B268E121-4800-402B-B066-FFA17051D5EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B268E121-4800-402B-B066-FFA17051D5EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B268E121-4800-402B-B066-FFA17051D5EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82AE9FD4-E420-4AAC-9199-513CA69482FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82AE9FD4-E420-4AAC-9199-513CA69482FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82AE9FD4-E420-4AAC-9199-513CA69482FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82AE9FD4-E420-4AAC-9199-513CA69482FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

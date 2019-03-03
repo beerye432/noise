@@ -46,7 +46,8 @@ namespace Noise.SentimentCollection.Engine
             m_Valences = ValenceDictionaryUtils.CreateValenceDictionary().Result;
 
             // Create list of proper nouns to ignore
-            m_IgnoredProperNouns = new List<string> { "i", "the", "president" };
+            // TODO: Move this to a file
+            m_IgnoredProperNouns = new List<string> { "i", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
         }
 
         public static NoiseConfigurations Instance

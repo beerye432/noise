@@ -88,34 +88,8 @@ namespace Noise.SentimentCollection.Engine
             // Split the scrubbed text into tokens
             List<string> tokens = new List<string>(text.Split(" "));
 
-            Dictionary<string, int> properNounTokens = new Dictionary<string, int>();
-
-            // Rudimentary proper known search
-            for(int i = 1; i < tokens.Count; i++)
-            {
-                /*
-                 * Search for tokens with a capital first letter.
-                 * If the token before this token ends with a period, 
-                 * the current token is capitalized because it is the start of a new sentence,
-                 * and should be ignored. Start at 1 to ignore first word in an article
-                 */
-                string currentToken = tokens[i];
-
-                if (string.IsNullOrEmpty(currentToken))
-                    continue;
-
-                if (char.IsUpper(currentToken[0]) && !tokens[i - 1].Replace(" ", "").EndsWith('.'))
-                {
-                    string token = currentToken.Replace(".", "").ToLower();
-                    if (NoiseConfigurations.IgnoredProperNouns.Contains(token))
-                        continue;
-
-                    if (properNounTokens.ContainsKey(token))
-                        properNounTokens[token]++;
-                    else
-                        properNounTokens[token] = 1;
-                }
-            }
+            // Get proper nouns from list of tokens
+            Dictionary<string, int> properNounTokens = GetProperNouns(tokens);
 
             // Fully strip all non-alphanumeric characters
             Regex fullScrub = new Regex("[^a-zA-Z0-9 ]");
@@ -126,6 +100,7 @@ namespace Noise.SentimentCollection.Engine
             tokens = new List<string>(text.Split(" "));
 
             // Go through tokens one by one, seeing if they land in AFINN-en-165 dictionary
+            // TODO: refactor this into one of more methods to increase testability
             int valenceTotal = 0;
             int numTokens = 0;
             Dictionary<string, int> positiveTokens = new Dictionary<string, int>();
@@ -134,7 +109,7 @@ namespace Noise.SentimentCollection.Engine
             foreach (string token in tokens.Select(t => t.ToLower()))
             {
                 // current token appears in valence dictionary
-                if(valences.ContainsKey(token))
+                if (valences.ContainsKey(token))
                 {
                     int valence = valences[token];
 
@@ -171,6 +146,40 @@ namespace Noise.SentimentCollection.Engine
 
 
             return info;
+        }
+
+        public static Dictionary<string, int> GetProperNouns(List<string> tokens)
+        {
+            Dictionary<string, int> properNounTokens = new Dictionary<string, int>();
+
+            // Rudimentary proper known search
+            for (int i = 1; i < tokens.Count; i++)
+            {
+                /*
+                 * Search for tokens with a capital first letter.
+                 * If the token before this token ends with a period, 
+                 * the current token is capitalized because it is the start of a new sentence,
+                 * and should be ignored. Start at 1 to ignore first word in an article
+                 */
+                string currentToken = tokens[i];
+
+                if (string.IsNullOrEmpty(currentToken))
+                    continue;
+
+                if (char.IsUpper(currentToken[0]) && !tokens[i - 1].Replace(" ", "").EndsWith('.'))
+                {
+                    string token = currentToken.Replace(".", "");
+                    if (NoiseConfigurations.IgnoredProperNouns.Contains(token))
+                        continue;
+
+                    if (properNounTokens.ContainsKey(token))
+                        properNounTokens[token]++;
+                    else
+                        properNounTokens[token] = 1;
+                }
+            }
+
+            return properNounTokens;
         }
 
         public static SentimentInfo ConsolidateSentimentInfo(List<SentimentInfo> sentiments)
