@@ -86,7 +86,7 @@ namespace Noise.SentimentCollection.Engine
             text = Regex.Replace(text, @"\s+", " ");
 
             // Split the scrubbed text into tokens
-            List<string> tokens = new List<string>(text.Split(" "));
+            List<string> tokens = new List<string>(text.Split(" ").Where(s => !string.IsNullOrEmpty(s)));
 
             // Get proper nouns from list of tokens
             Dictionary<string, int> properNounTokens = GetProperNouns(tokens);
@@ -166,11 +166,29 @@ namespace Noise.SentimentCollection.Engine
                 if (string.IsNullOrEmpty(currentToken))
                     continue;
 
+                // Let's remove tokens with length 2 that end with ".", i.e middle initials
+                tokens.RemoveAll(t => t.Length == 2 && t[1] == '.');
+
+                // If the current token starts with a capital letter and isn't the start of a sentence, keep track of it
                 if (char.IsUpper(currentToken[0]) && !tokens[i - 1].Replace(" ", "").EndsWith('.'))
                 {
                     string token = currentToken.Replace(".", "");
                     if (NoiseConfigurations.IgnoredProperNouns.Contains(token))
                         continue;
+
+                    // While we're still within bounds of our array, and the NEXT token is a proper noun
+                    while ((i + 1) < tokens.Count && char.IsUpper(tokens[i + 1][0]))
+                    {
+                        string nextToken = tokens[i + 1];
+                        if (NoiseConfigurations.IgnoredProperNouns.Contains(nextToken))
+                            break;
+
+                        // Append the next proper noun onto the initial token
+                        token += " " + nextToken;
+
+                        // Advance our loop
+                        i++;
+                    }
 
                     if (properNounTokens.ContainsKey(token))
                         properNounTokens[token]++;

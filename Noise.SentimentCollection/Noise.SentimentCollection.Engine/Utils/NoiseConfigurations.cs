@@ -47,7 +47,7 @@ namespace Noise.SentimentCollection.Engine
 
             // Create list of proper nouns to ignore
             // TODO: Move this to a file
-            m_IgnoredProperNouns = new List<string> { "i", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"};
+            m_IgnoredProperNouns = new List<string> { "I", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
         }
 
         public static NoiseConfigurations Instance
