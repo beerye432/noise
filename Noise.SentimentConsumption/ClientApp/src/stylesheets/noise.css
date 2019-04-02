@@ -1,0 +1,6 @@
+﻿.noise-grid {
+    display: grid;
+    height:100%;
+    grid-template-columns: repeat(auto-fill, 2%);
+    grid-template-rows: repeat(auto-fill, 2%);
+}
