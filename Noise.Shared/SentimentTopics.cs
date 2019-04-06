@@ -1,4 +1,4 @@
-﻿namespace Noise.SentimentCollection.Engine
+﻿namespace Noise.Shared
 {
     public enum SentimentTopic
     {

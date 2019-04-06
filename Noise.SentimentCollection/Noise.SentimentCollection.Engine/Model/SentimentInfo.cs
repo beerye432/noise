@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Noise.SentimentCollection.Engine
+namespace Noise.Shared
 {
     /// <summary>
     /// This class contains information about the 

@@ -21,6 +21,7 @@ namespace Noise.SentimentConsumption
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddTransient<ISentimentManager, SentimentManager>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -51,7 +52,7 @@ namespace Noise.SentimentConsumption
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
+                    template: "{controller}/{action=Index}");
             });
 
             app.UseSpa(spa =>

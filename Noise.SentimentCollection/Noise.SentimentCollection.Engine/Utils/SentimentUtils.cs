@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Noise.Shared;
 using Npgsql;
 using System;
 using System.Collections.Generic;

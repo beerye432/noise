@@ -11,7 +11,11 @@
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.8.14" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="Npgsql" Version="4.0.4" />
+    <PackageReference Include="Npgsql" Version="4.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Noise.Shared\Noise.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

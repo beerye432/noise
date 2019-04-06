@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using Noise.Shared;
 using Npgsql;
 
 namespace Noise.SentimentCollection.Engine

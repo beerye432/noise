@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Noise.Shared;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Noise.SentimentCollection.Engine
