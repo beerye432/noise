@@ -16,7 +16,7 @@ export default class Home extends Component {
     componentDidMount() {
         axios.get("/sentiment/GetLatestSentiment?topic=1")
             .then(
-                (result) => {
+            (result) => {
                     this.setState({ sentiment: result.data, sentimentLoaded: true });
                 },
                 (error) => {
@@ -54,7 +54,11 @@ export default class Home extends Component {
             });
 
             return (
-                <div className="noise-grid">{grid}</div>
+                <div className="noise-grid">
+                    <div className="noise-grid-element">Topic: {this.state.sentiment.topic} <br /> Domain: {this.state.sentiment.domain}</div>
+                    <div className="noise-grid-element">Date: {this.state.sentiment.date}</div>
+                    <div className="noise-grid-element">Sentiment: {this.state.sentiment.valence}</div>
+                </div>
             );
         }
         else {

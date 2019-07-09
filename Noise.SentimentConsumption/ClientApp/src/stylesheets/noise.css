@@ -4,21 +4,17 @@
 
 .noise-grid {
     display: grid;
-    height:100%;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    grid-auto-rows: minmax(80px, 1fr);
+    height: 500px;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-auto-flow: row;
+    grid-gap: 5px;
 }
 
-.grid-cell:nth-child(3n) {
-    box-shadow: inset 0 0 3px #000000
-}
-
-.grid-cell:nth-child(3n + 1) {
-    box-shadow: inset 0 0 9px #000000
-}
-
-.grid-cell:nth-child(3n + 2) {
-    box-shadow: inset 0 0 15px #000000
+.noise-grid .noise-grid-element {
+    grid-column: auto / span 2;
+    grid-row: span 2;
+    box-shadow: inset 0 0 15px #000000;
 }
 
 .grid-cell:hover{

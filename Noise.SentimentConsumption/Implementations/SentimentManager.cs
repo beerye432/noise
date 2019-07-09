@@ -30,6 +30,7 @@ namespace Noise.SentimentConsumption
                         if(await reader.ReadAsync())
                         {
                             ret["topic"] = topic.ToString();
+                            ret["domain"] = reader.GetFieldValueAsync<string>(3).Result;
                             ret["valence"] = reader.GetFieldValueAsync<double>(2).Result;
                             ret["date"] = reader.GetFieldValueAsync<DateTime>(1).Result;
                         }
